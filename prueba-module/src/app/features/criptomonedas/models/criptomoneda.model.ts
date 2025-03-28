@@ -10,4 +10,5 @@ export interface Criptomoneda {
     nombre: string;
     descripcion?: string;
     estado: 'Activo' | 'Inactivo';
+    favorito?: boolean;
 }
