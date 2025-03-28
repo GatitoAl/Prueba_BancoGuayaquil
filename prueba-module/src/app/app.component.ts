@@ -1,12 +1,17 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [
+    MatToolbarModule, // Importa el módulo de Angular Material para la barra de herramientas
+    RouterModule      // Importa el módulo de enrutamiento si estás usando rutas
+  ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'prueba-module';
+  title = 'Prueba Banco Guayaquil';
 }
