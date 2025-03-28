@@ -1,8 +1,8 @@
 <div class="cabecera">
     <h2>Lista de Criptomonedas</h2>
-    <button class="btn-debug" (click)="limpiarStorage()">Recargar desde API</button>
 </div>
 
+<!-- Lista de criptomonedas -->
 <div class="criptomonedas-container">
     @for (cripto of criptomonedas; track cripto.id) {
     <div class="criptomoneda-card" (click)="verDetalleCriptomoneda(cripto)">
@@ -39,7 +39,45 @@
     }
     @empty {
     <div class="empty-state">
-        <p>No hay criptomonedas disponibles. Intenta recargar.</p>
+        <p>No hay criptomonedas disponibles</p>
     </div>
     }
+</div>
+
+<!-- Controles de paginación -->
+<div class="paginacion-container">
+    <div class="paginacion-info">
+        Mostrando {{ ((paginaActual - 1) * itemsPorPagina) + 1 }} -
+        {{ (paginaActual * itemsPorPagina > todasCriptomonedas.length) ? todasCriptomonedas.length : paginaActual *
+        itemsPorPagina }}
+        de {{ todasCriptomonedas.length }} criptomonedas
+    </div>
+
+    <div class="paginacion-controles">
+        <button class="btn-pagina" [class.disabled]="paginaActual === 1" (click)="paginaAnterior()"
+            [disabled]="paginaActual === 1">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        @for (pagina of paginas; track pagina) {
+        <button class="btn-pagina" [class.active]="pagina === paginaActual" (click)="irAPagina(pagina)">
+            {{ pagina }}
+        </button>
+        }
+
+        <button class="btn-pagina" [class.disabled]="paginaActual === totalPaginas" (click)="paginaSiguiente()"
+            [disabled]="paginaActual === totalPaginas">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <div class="items-por-pagina">
+        <label for="itemsPorPagina">Mostrar:</label>
+        <select id="itemsPorPagina" [(ngModel)]="itemsPorPagina" (change)="actualizarPaginacion()">
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+        </select>
+    </div>
 </div>

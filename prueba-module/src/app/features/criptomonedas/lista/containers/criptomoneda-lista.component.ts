@@ -1,82 +1,117 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { Criptomoneda, CriptomonedaAPI } from '../../models/criptomoneda.model';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { Criptomoneda } from '../../models/criptomoneda.model';
+import { CriptomonedaStorageService } from '../../services/criptomoneda-storage.service';
+import { CriptomonedaApiService } from '../../services/criptomoneda-api.service';
 
 @Component({
   selector: 'app-criptomoneda-lista',
   templateUrl: './criptomoneda-lisa.component.html',
-  styleUrls: ['./criptomoneda-lisa.component.scss']
+  styleUrls: ['./criptomoneda-lisa.component.scss'],
+  standalone: true,
+  imports: [CommonModule, FormsModule]
 })
-export class CriptomonedaListaComponent implements OnInit {
+export class CriptomonedaListaComponent implements OnInit, OnDestroy {
+  // Datos completos y paginados
+  todasCriptomonedas: Criptomoneda[] = [];
   criptomonedas: Criptomoneda[] = [];
-  private apiUrl = 'https://api.coingecko.com/api/v3/coins/list'; // Reemplaza por tu URL real
+
+  // Configuración de paginación
+  paginaActual: number = 1;
+  itemsPorPagina: number = 5;
+  totalPaginas: number = 1;
+  paginas: number[] = [];
+
+  private subscription = new Subscription();
 
   constructor(
     private router: Router,
-    private http: HttpClient
+    private criptomonedaStorageService: CriptomonedaStorageService,
+    private criptomonedaApiService: CriptomonedaApiService
   ) { }
 
   ngOnInit(): void {
     this.cargarCriptomonedas();
   }
 
-  cargarCriptomonedas(): void {
-    // Primero intentamos recuperar del sessionStorage
-    const criptosString = sessionStorage.getItem('criptomonedas');
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
 
-    if (criptosString) {
-      console.log('Datos encontrados en sessionStorage');
-      try {
-        this.criptomonedas = JSON.parse(criptosString);
-        this.sortCriptomonedas();
-      } catch (error) {
-        console.error('Error al parsear los datos de sessionStorage', error);
-        this.cargarDesdeLaAPI();
-      }
-    } else {
-      console.log('No hay datos en sessionStorage, cargando desde API');
-      this.cargarDesdeLaAPI();
+  cargarCriptomonedas(): void {
+    // Nos suscribimos al observable del servicio de almacenamiento
+    this.subscription.add(
+      this.criptomonedaStorageService.obtenerTodas().subscribe(criptomonedas => {
+        if (criptomonedas.length === 0) {
+          // Si no hay datos en sessionStorage, cargamos desde la API
+          this.cargarDesdeAPI();
+        } else {
+          this.todasCriptomonedas = this.sortCriptomonedas(criptomonedas);
+          this.actualizarPaginacion();
+        }
+      })
+    );
+  }
+
+  cargarDesdeAPI(): void {
+    this.subscription.add(
+      this.criptomonedaApiService.obtenerCriptomonedas().subscribe((data: Criptomoneda[]) => {
+        // Guardamos los datos obtenidos en el servicio de almacenamiento
+        this.criptomonedaStorageService.guardarTodas(data);
+        this.todasCriptomonedas = this.sortCriptomonedas(data);
+        this.actualizarPaginacion();
+      })
+    );
+  }
+
+  actualizarPaginacion(): void {
+    this.totalPaginas = Math.ceil(this.todasCriptomonedas.length / this.itemsPorPagina);
+
+    // Aseguramos que la página actual es válida
+    if (this.paginaActual < 1) this.paginaActual = 1;
+    if (this.paginaActual > this.totalPaginas) this.paginaActual = this.totalPaginas;
+
+    // Calculamos el índice inicial y final para la página actual
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = Math.min(inicio + this.itemsPorPagina, this.todasCriptomonedas.length);
+
+    // Obtenemos los elementos para la página actual
+    this.criptomonedas = this.todasCriptomonedas.slice(inicio, fin);
+
+    // Generamos el array de páginas
+    this.paginas = [];
+    for (let i = 1; i <= this.totalPaginas; i++) {
+      this.paginas.push(i);
     }
   }
 
-  cargarDesdeLaAPI(): void {
-    this.http.get<CriptomonedaAPI[]>(this.apiUrl).subscribe({
-      next: (data) => {
-        console.log('Datos recibidos de la API:', data);
-
-        // Transformamos los datos de la API al formato de nuestra aplicación
-        const criptosTransformadas = data.slice(0, 50).map(item => ({
-          id: item.id,
-          codigo: item.symbol,
-          nombre: item.name,
-          descripcion: `Criptomoneda basada en ${item.name}`,
-          estado: 'Activo' as 'Activo' | 'Inactivo',
-          favorito: false
-        }));
-
-        // Guardamos en sessionStorage
-        sessionStorage.setItem('criptomonedas', JSON.stringify(criptosTransformadas));
-
-        // Actualizamos la lista
-        this.criptomonedas = criptosTransformadas;
-        this.sortCriptomonedas();
-      },
-      error: (error) => {
-        console.error('Error al cargar datos desde la API', error);
-      }
-    });
+  irAPagina(pagina: number): void {
+    this.paginaActual = pagina;
+    this.actualizarPaginacion();
   }
 
-  guardarCriptomonedas(): void {
-    sessionStorage.setItem('criptomonedas', JSON.stringify(this.criptomonedas));
+  paginaAnterior(): void {
+    if (this.paginaActual > 1) {
+      this.paginaActual--;
+      this.actualizarPaginacion();
+    }
+  }
+
+  paginaSiguiente(): void {
+    if (this.paginaActual < this.totalPaginas) {
+      this.paginaActual++;
+      this.actualizarPaginacion();
+    }
   }
 
   toggleFavorito(cripto: Criptomoneda, event: Event): void {
     event.stopPropagation();
-    cripto.favorito = !cripto.favorito;
-    this.guardarCriptomonedas();
-    this.sortCriptomonedas();
+    if (cripto.id) {
+      this.criptomonedaStorageService.toggleFavorito(cripto.id);
+    }
   }
 
   editarCriptomoneda(cripto: Criptomoneda, event: Event): void {
@@ -92,8 +127,8 @@ export class CriptomonedaListaComponent implements OnInit {
     }
   }
 
-  sortCriptomonedas(): void {
-    this.criptomonedas.sort((a, b) => {
+  sortCriptomonedas(criptomonedas: Criptomoneda[]): Criptomoneda[] {
+    return [...criptomonedas].sort((a, b) => {
       // Primero los favoritos
       if (a.favorito && !b.favorito) return -1;
       if (!a.favorito && b.favorito) return 1;
@@ -101,12 +136,5 @@ export class CriptomonedaListaComponent implements OnInit {
       // Luego por nombre
       return a.nombre.localeCompare(b.nombre);
     });
-  }
-
-  // Función para depuración - puedes añadirla temporalmente
-  limpiarStorage(): void {
-    sessionStorage.removeItem('criptomonedas');
-    console.log('Storage limpiado');
-    this.cargarDesdeLaAPI();
   }
 }

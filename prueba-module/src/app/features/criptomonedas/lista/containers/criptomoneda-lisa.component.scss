@@ -1,27 +1,13 @@
+/* Estilos de cabecera */
 .cabecera {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px 10px;
-    margin-bottom: 20px;
+    padding: 20px;
     border-bottom: 1px solid #eee;
 }
 
-.btn-debug {
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-
-    &:hover {
-        background-color: #5a6268;
-    }
-}
-
+/* Estilos de la lista de criptomonedas */
 .criptomonedas-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -120,4 +106,71 @@
     padding: 40px;
     color: #6c757d;
     font-size: 18px;
+}
+
+/* Estilos de paginación */
+.paginacion-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+}
+
+.paginacion-info {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.paginacion-controles {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-pagina {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+
+    &:hover:not(.disabled) {
+        background-color: #e9ecef;
+    }
+
+    &.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.items-por-pagina {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    label {
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    select {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+    }
 }

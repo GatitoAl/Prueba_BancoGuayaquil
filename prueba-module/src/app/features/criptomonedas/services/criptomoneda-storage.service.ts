@@ -46,4 +46,38 @@ export class CriptomonedaStorageService {
         const criptomonedas = this.criptomonedasSubject.value.filter(c => c.id !== id);
         this.guardarEnStorage(criptomonedas);
     }
+
+    // Nuevos métodos para la funcionalidad de favoritos
+    toggleFavorito(id: string): void {
+        const criptomonedas = [...this.criptomonedasSubject.value];
+        const index = criptomonedas.findIndex(c => c.id === id);
+
+        if (index !== -1) {
+            criptomonedas[index] = {
+                ...criptomonedas[index],
+                favorito: !criptomonedas[index].favorito
+            };
+            this.guardarEnStorage(criptomonedas);
+        }
+    }
+
+    // Método para cambiar el estado de una criptomoneda
+    toggleEstado(id: string): void {
+        const criptomonedas = [...this.criptomonedasSubject.value];
+        const index = criptomonedas.findIndex(c => c.id === id);
+
+        if (index !== -1) {
+            const nuevoEstado = criptomonedas[index].estado === 'Activo' ? 'Inactivo' : 'Activo';
+            criptomonedas[index] = {
+                ...criptomonedas[index],
+                estado: nuevoEstado as 'Activo' | 'Inactivo'
+            };
+            this.guardarEnStorage(criptomonedas);
+        }
+    }
+
+    // Método para guardar un conjunto de criptomonedas (útil para la carga inicial)
+    guardarTodas(criptomonedas: Criptomoneda[]): void {
+        this.guardarEnStorage(criptomonedas);
+    }
 }
