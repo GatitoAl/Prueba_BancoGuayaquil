@@ -1,8 +1,10 @@
-<mat-toolbar color="primary">
-  <span>{{ title }}</span>
-  <span class="spacer"></span>
-  <button mat-button routerLink="/criptomonedas/lista">Lista</button>
-  <button mat-button routerLink="/criptomonedas/mantenimiento">Mantenimiento</button>
+<mat-toolbar color="primary" class="navContainer">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/4/49/Banco_Guayaquil_%282020%29.svg" class="image" />
+  <p>{{ title }}</p>
+  <div> <button mat-button routerLink="/criptomonedas/lista">Lista</button>
+    <button mat-button routerLink="/criptomonedas/mantenimiento">Mantenimiento</button>
+  </div>
+
 </mat-toolbar>
 
 <div class="container">

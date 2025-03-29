@@ -1,0 +1,103 @@
+<div class="mantenimiento-container">
+    <div class="form-header">
+        <h2>{{ isEditMode ? 'Editar' : 'Crear' }} Criptomoneda</h2>
+        <div class="actions">
+            <button type="button" class="btn btn-secondary" (click)="cancelar()">
+                <i class="fas fa-arrow-left"></i> Volver
+            </button>
+        </div>
+    </div>
+
+    @if (loading) {
+    <div class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Cargando...</p>
+    </div>
+    }
+
+    @if (errorMessage) {
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+    </div>
+    }
+
+    @if (successMessage) {
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> {{ successMessage }}
+    </div>
+    }
+
+    <form [formGroup]="criptomonedaForm" (ngSubmit)="onSubmit()" class="criptomoneda-form">
+        <div class="form-card">
+            <div class="form-group">
+                <label for="codigo">Código *</label>
+                <input type="text" id="codigo" formControlName="codigo" class="form-control"
+                    [class.is-invalid]="submitted && f['codigo'].errors" placeholder="Ej: BTC">
+                @if (submitted && f['codigo'].errors) {
+                <div class="invalid-feedback">
+                    @if (f['codigo'].errors['required']) {
+                    <span>El código es obligatorio</span>
+                    } @else if (f['codigo'].errors['minlength']) {
+                    <span>El código debe tener al menos 2 caracteres</span>
+                    } @else if (f['codigo'].errors['maxlength']) {
+                    <span>El código no puede exceder 10 caracteres</span>
+                    }
+                </div>
+                }
+            </div>
+
+            <div class="form-group">
+                <label for="nombre">Nombre *</label>
+                <input type="text" id="nombre" formControlName="nombre" class="form-control"
+                    [class.is-invalid]="submitted && f['nombre'].errors" placeholder="Ej: Bitcoin">
+                @if (submitted && f['nombre'].errors) {
+                <div class="invalid-feedback">
+                    @if (f['nombre'].errors['required']) {
+                    <span>El nombre es obligatorio</span>
+                    } @else if (f['nombre'].errors['minlength']) {
+                    <span>El nombre debe tener al menos 3 caracteres</span>
+                    } @else if (f['nombre'].errors['maxlength']) {
+                    <span>El nombre no puede exceder 50 caracteres</span>
+                    }
+                </div>
+                }
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion">Descripción</label>
+                <textarea id="descripcion" formControlName="descripcion" class="form-control" rows="3"
+                    placeholder="Descripción detallada de la criptomoneda"></textarea>
+            </div>
+
+            <div class="form-options">
+                <div class="option-item">
+                    <span>Estado:</span>
+                    <button type="button" class="toggle-btn" [class.active]="f['estado'].value === 'Activo'"
+                        (click)="toggleEstado()">
+                        <i class="fas" [class.fa-toggle-on]="f['estado'].value === 'Activo'"
+                            [class.fa-toggle-off]="f['estado'].value !== 'Activo'"></i>
+                        {{ f['estado'].value }}
+                    </button>
+                </div>
+
+                <div class="option-item">
+                    <span>Favorito:</span>
+                    <button type="button" class="toggle-btn favorite-btn" [class.active]="f['favorito'].value"
+                        (click)="toggleFavorite()">
+                        <i class="fas" [class.fa-star]="f['favorito'].value"
+                            [class.fa-star-o]="!f['favorito'].value"></i>
+                        {{ f['favorito'].value ? 'Favorito' : 'No favorito' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn btn-outline" (click)="cancelar()">Cancelar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="loading">
+                <i class="fas" [class.fa-save]="!loading" [class.fa-spinner]="loading" [class.fa-spin]="loading"></i>
+                {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+            </button>
+        </div>
+    </form>
+</div>
