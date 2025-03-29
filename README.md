@@ -20,13 +20,59 @@ El proyecto utiliza las siguientes tecnologías y versiones:
 - **npm**: 10 (Gestor de paquetes para instalar dependencias).
 
 ---
+# **Instrucciones para Levantar el Proyecto**
+
+Sigue estos pasos para clonar y levantar el proyecto:
+
+### **1.Clonar repositorio**
+Clona el repositorio desde GitHub:
+
+---
+
+## **Requisitos Previos**
 
 ## **Estructura del Proyecto**
 
 El proyecto está dividido en dos aplicaciones principales:
 
-### **1. prueba-shell**
+### **1.Clonar el repositorio**
 La aplicación principal (host) que carga y orquesta los módulos remotos.
+```bash
+   git clone https://github.com/GatitoAl/Prueba_BancoGuayaquil.git
+```
+
+### **2.Instalar dependencias**
+Navega a cada carpeta del proyecto (prueba-shell y prueba-module) e instala las dependencias:
+
+Para prueba-shell:
+```bash
+   cd prueba-shell
+   npm install
+```
+
+Para prueba-module:
+```bash
+   cd prueba-module
+   npm install
+```
+
+### **3.Levantar las aplicaciones**
+Levanta cada aplicación en un puerto diferente.
+
+Para prueba-shell:
+```bash
+   cd prueba-shell
+   npm start
+```
+Para prueba-shell:
+Esto levantará el módulo remoto en el puerto 4201.
+
+Para prueba-module:
+```bash
+   cd prueba-module
+   npm start
+```
+Esto levantará la aplicación principal en el puerto 4200.
 
 ## **Funcionalidades**
 
