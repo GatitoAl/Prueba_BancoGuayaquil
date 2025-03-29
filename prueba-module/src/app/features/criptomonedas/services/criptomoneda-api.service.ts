@@ -7,7 +7,7 @@ import { Criptomoneda, CriptomonedaAPI } from '../models/criptomoneda.model';
     providedIn: 'root'
 })
 export class CriptomonedaApiService {
-    private apiUrl = 'https://api.coingecko.com/api/v3/coins/list'; // URL de ejemplo
+    private apiUrl = 'https://api.coingecko.com/api/v3/coins/list'; // URL de la API para obtener las criptos
 
     constructor(private http: HttpClient) { }
 

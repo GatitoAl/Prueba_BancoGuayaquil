@@ -19,15 +19,18 @@ export class CriptomonedaStorageService {
         this.criptomonedasSubject.next(criptomonedas);
     }
 
+    //Funcion para guardar en la sesion storage
     private guardarEnStorage(criptomonedas: Criptomoneda[]): void {
         sessionStorage.setItem(this.storageKey, JSON.stringify(criptomonedas));
         this.criptomonedasSubject.next(criptomonedas);
     }
 
+    //Funcion para obtener todo
     obtenerTodas(): Observable<Criptomoneda[]> {
         return this.criptomonedasSubject.asObservable();
     }
 
+    //Funcion para guardar
     guardar(criptomoneda: Criptomoneda): void {
         const criptomonedas = [...this.criptomonedasSubject.value];
         if (!criptomoneda.id) {
@@ -42,12 +45,13 @@ export class CriptomonedaStorageService {
         this.guardarEnStorage(criptomonedas);
     }
 
+    //Funcion para eliminar
     eliminar(id: string): void {
         const criptomonedas = this.criptomonedasSubject.value.filter(c => c.id !== id);
         this.guardarEnStorage(criptomonedas);
     }
 
-    // Nuevos métodos para la funcionalidad de favoritos
+    //Funcion para crear favoritos
     toggleFavorito(id: string): void {
         const criptomonedas = [...this.criptomonedasSubject.value];
         const index = criptomonedas.findIndex(c => c.id === id);
@@ -57,11 +61,12 @@ export class CriptomonedaStorageService {
                 ...criptomonedas[index],
                 favorito: !criptomonedas[index].favorito
             };
+            console.log('Toggle favorito para:', criptomonedas[index]); // Verifica con console.log
             this.guardarEnStorage(criptomonedas);
         }
     }
 
-    // Método para cambiar el estado de una criptomoneda
+    // Funcion para activar o desactivar
     toggleEstado(id: string): void {
         const criptomonedas = [...this.criptomonedasSubject.value];
         const index = criptomonedas.findIndex(c => c.id === id);
@@ -76,7 +81,7 @@ export class CriptomonedaStorageService {
         }
     }
 
-    // Método para guardar un conjunto de criptomonedas (útil para la carga inicial)
+    // Funcion para guardar
     guardarTodas(criptomonedas: Criptomoneda[]): void {
         this.guardarEnStorage(criptomonedas);
     }

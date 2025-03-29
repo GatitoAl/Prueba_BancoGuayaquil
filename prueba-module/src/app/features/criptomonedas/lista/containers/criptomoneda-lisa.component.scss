@@ -1,4 +1,3 @@
-/* Estilos de cabecera */
 .cabecera {
     display: flex;
     justify-content: space-between;
@@ -7,7 +6,6 @@
     border-bottom: 1px solid #eee;
 }
 
-/* Estilos de la lista de criptomonedas */
 .criptomonedas-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -60,16 +58,9 @@
             color: gold;
         }
 
-        &.fa-edit {
-            color: #007bff;
-        }
-
-        &.text-success {
-            color: #28a745;
-        }
-
-        &.text-danger {
-            color: #dc3545;
+        &.fa-star-o,
+        &.far.fa-star {
+            color: #ccc;
         }
     }
 }
@@ -108,7 +99,6 @@
     font-size: 18px;
 }
 
-/* Estilos de paginación */
 .paginacion-container {
     display: flex;
     justify-content: space-between;

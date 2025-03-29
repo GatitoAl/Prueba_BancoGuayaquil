@@ -6,8 +6,8 @@ import { RouterModule } from '@angular/router';
   selector: 'app-root',
   standalone: true,
   imports: [
-    MatToolbarModule, // Importa el módulo de Angular Material para la barra de herramientas
-    RouterModule      // Importa el módulo de enrutamiento si estás usando rutas
+    MatToolbarModule,
+    RouterModule
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']

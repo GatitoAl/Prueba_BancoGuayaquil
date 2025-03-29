@@ -21,7 +21,7 @@ export class CriptomonedaListaComponent implements OnInit, OnDestroy {
 
   // Configuración de paginación
   paginaActual: number = 1;
-  itemsPorPagina: number = 5;
+  itemsPorPagina: number = 10;
   totalPaginas: number = 1;
   paginas: number[] = [];
 
@@ -42,7 +42,7 @@ export class CriptomonedaListaComponent implements OnInit, OnDestroy {
   }
 
   cargarCriptomonedas(): void {
-    // Nos suscribimos al observable del servicio de almacenamiento
+    // Nos suscribimos al servicio de almacenamiento
     this.subscription.add(
       this.criptomonedaStorageService.obtenerTodas().subscribe(criptomonedas => {
         if (criptomonedas.length === 0) {
@@ -59,29 +59,27 @@ export class CriptomonedaListaComponent implements OnInit, OnDestroy {
   cargarDesdeAPI(): void {
     this.subscription.add(
       this.criptomonedaApiService.obtenerCriptomonedas().subscribe((data: Criptomoneda[]) => {
-        // Guardamos los datos obtenidos en el servicio de almacenamiento
-        this.criptomonedaStorageService.guardarTodas(data);
-        this.todasCriptomonedas = this.sortCriptomonedas(data);
+        const criptosConFavoritos = data.map(cripto => ({
+          ...cripto,
+          favorito: cripto.favorito !== undefined ? cripto.favorito : false
+        }));
+
+        // Guardamos los datos
+        this.criptomonedaStorageService.guardarTodas(criptosConFavoritos);
+        this.todasCriptomonedas = this.sortCriptomonedas(criptosConFavoritos);
         this.actualizarPaginacion();
       })
     );
   }
 
+
   actualizarPaginacion(): void {
     this.totalPaginas = Math.ceil(this.todasCriptomonedas.length / this.itemsPorPagina);
-
-    // Aseguramos que la página actual es válida
     if (this.paginaActual < 1) this.paginaActual = 1;
     if (this.paginaActual > this.totalPaginas) this.paginaActual = this.totalPaginas;
-
-    // Calculamos el índice inicial y final para la página actual
     const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
     const fin = Math.min(inicio + this.itemsPorPagina, this.todasCriptomonedas.length);
-
-    // Obtenemos los elementos para la página actual
     this.criptomonedas = this.todasCriptomonedas.slice(inicio, fin);
-
-    // Generamos el array de páginas
     this.paginas = [];
     for (let i = 1; i <= this.totalPaginas; i++) {
       this.paginas.push(i);
@@ -114,26 +112,18 @@ export class CriptomonedaListaComponent implements OnInit, OnDestroy {
     }
   }
 
-  editarCriptomoneda(cripto: Criptomoneda, event: Event): void {
-    event.stopPropagation();
-    if (cripto.id) {
-      this.router.navigate(['/criptomonedas/editar', cripto.id]);
-    }
-  }
-
   verDetalleCriptomoneda(cripto: Criptomoneda): void {
+    // Dirigimos a la ruta de mantenimiento
     if (cripto.id) {
-      this.router.navigate(['/criptomonedas/detalle', cripto.id]);
+      this.router.navigate(['/criptomonedas/mantenimiento', cripto.id]);
     }
   }
 
+  //Función para organizar a los favoritos primero
   sortCriptomonedas(criptomonedas: Criptomoneda[]): Criptomoneda[] {
     return [...criptomonedas].sort((a, b) => {
-      // Primero los favoritos
       if (a.favorito && !b.favorito) return -1;
       if (!a.favorito && b.favorito) return 1;
-
-      // Luego por nombre
       return a.nombre.localeCompare(b.nombre);
     });
   }

@@ -10,18 +10,14 @@
             <h3>{{ cripto.nombre }}</h3>
             <div class="card-actions">
                 <!-- Estrella para marcar como favorito -->
-                <i class="fas" [class.fa-star]="cripto.favorito" [class.fa-star-o]="!cripto.favorito"
-                    (click)="toggleFavorito(cripto, $event)"
-                    [title]="cripto.favorito ? 'Quitar de favoritos' : 'Añadir a favoritos'"></i>
-
-                <!-- Icono para indicar estado activo/inactivo -->
+                <button (click)="toggleFavorito(cripto, $event)" class="debug-button">
+                    {{ cripto.favorito ? '★ Favorito' : '☆ Marcar como favorito' }}
+                </button>
+                <!-- Indicador de estado activo/inactivo -->
                 <i class="fas" [class.fa-check-circle]="cripto.estado === 'Activo'"
                     [class.fa-times-circle]="cripto.estado === 'Inactivo'"
                     [class.text-success]="cripto.estado === 'Activo'" [class.text-danger]="cripto.estado === 'Inactivo'"
                     [title]="'Estado: ' + cripto.estado"></i>
-
-                <!-- Icono para editar -->
-                <i class="fas fa-edit" (click)="editarCriptomoneda(cripto, $event)" title="Editar criptomoneda"></i>
             </div>
         </div>
 

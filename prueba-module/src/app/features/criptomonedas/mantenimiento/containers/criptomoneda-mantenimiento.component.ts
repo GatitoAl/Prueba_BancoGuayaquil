@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Criptomoneda } from '../../models/criptomoneda.model';
 import { CriptomonedaStorageService } from '../../services/criptomoneda-storage.service';
 
@@ -12,13 +13,15 @@ import { CriptomonedaStorageService } from '../../services/criptomoneda-storage.
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule]
 })
-export class CriptomonedaMantenimientoComponent implements OnInit {
+export class CriptomonedaMantenimientoComponent implements OnInit, OnDestroy {
   criptomonedaForm: FormGroup;
   isEditMode = false;
   submitted = false;
   loading = false;
   successMessage = '';
   errorMessage = '';
+
+  private subscription = new Subscription();
 
   constructor(
     private fb: FormBuilder,
@@ -37,32 +40,44 @@ export class CriptomonedaMantenimientoComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.loadCriptomoneda(id);
-    }
+    this.subscription.add(
+      this.route.paramMap.subscribe(params => {
+        const id = params.get('id');
+        if (id) {
+          this.loadCriptomoneda(id);
+        } else {
+          this.isEditMode = false;
+          this.resetForm();
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   loadCriptomoneda(id: string): void {
     this.loading = true;
 
-    this.criptomonedaStorageService.obtenerTodas().subscribe({
-      next: (criptomonedas) => {
-        const criptomoneda = criptomonedas.find(c => c.id === id);
-        if (criptomoneda) {
-          this.criptomonedaForm.patchValue(criptomoneda);
-          this.isEditMode = true;
-        } else {
-          this.errorMessage = 'No se encontró la criptomoneda solicitada';
-          setTimeout(() => this.router.navigate(['/criptomonedas']), 2000);
+    this.subscription.add(
+      this.criptomonedaStorageService.obtenerTodas().subscribe({
+        next: (criptomonedas) => {
+          const criptomoneda = criptomonedas.find(c => c.id === id);
+          if (criptomoneda) {
+            this.criptomonedaForm.patchValue(criptomoneda);
+            this.isEditMode = true;
+          } else {
+            setTimeout(() => this.router.navigate(['/criptomonedas']), 2000);
+          }
+          this.loading = false;
+        },
+        error: (error) => {
+          this.errorMessage = 'Error al cargar la criptomoneda';
+          this.loading = false;
         }
-        this.loading = false;
-      },
-      error: (error) => {
-        this.errorMessage = 'Error al cargar la criptomoneda';
-        this.loading = false;
-      }
-    });
+      })
+    );
   }
 
   onSubmit(): void {
@@ -79,29 +94,41 @@ export class CriptomonedaMantenimientoComponent implements OnInit {
     const criptomoneda: Criptomoneda = this.criptomonedaForm.value;
 
     try {
+      if (!this.isEditMode && !criptomoneda.id) {
+        criptomoneda.id = Date.now().toString();
+      }
+
       this.criptomonedaStorageService.guardar(criptomoneda);
       this.successMessage = `Criptomoneda ${this.isEditMode ? 'actualizada' : 'creada'} correctamente`;
 
-      // Resetear el formulario si es una creación
-      if (!this.isEditMode) {
-        this.criptomonedaForm.reset({
-          estado: 'Activo',
-          favorito: false
-        });
-        this.submitted = false;
-      }
-
+      // Regresamos a la ruta de listas
       setTimeout(() => {
-        this.successMessage = '';
-      }, 3000);
+        this.router.navigate(['/criptomonedas']);
+      }, 1500);
     } catch (error) {
       this.errorMessage = `Error al ${this.isEditMode ? 'actualizar' : 'crear'} la criptomoneda`;
-    } finally {
       this.loading = false;
     }
   }
 
-  toggleFavorite(): void {
+  eliminarCriptomoneda(): void {
+    const id = this.criptomonedaForm.get('id')?.value;
+    if (id && confirm('¿Está seguro de eliminar esta criptomoneda?')) {
+      this.loading = true;
+      try {
+        this.criptomonedaStorageService.eliminar(id);
+        this.successMessage = 'Criptomoneda eliminada correctamente';
+        setTimeout(() => {
+          this.router.navigate(['/criptomonedas']);
+        }, 1500);
+      } catch (error) {
+        this.errorMessage = 'Error al eliminar la criptomoneda';
+        this.loading = false;
+      }
+    }
+  }
+
+  toggleFavorito(): void {
     const currentValue = this.criptomonedaForm.get('favorito')?.value;
     this.criptomonedaForm.get('favorito')?.setValue(!currentValue);
   }
@@ -116,6 +143,18 @@ export class CriptomonedaMantenimientoComponent implements OnInit {
     this.router.navigate(['/criptomonedas']);
   }
 
-  // Getters para facilitar el acceso a los campos del formulario en la plantilla
+  resetForm(): void {
+    this.criptomonedaForm.reset({
+      id: '',
+      codigo: '',
+      nombre: '',
+      descripcion: '',
+      estado: 'Activo',
+      favorito: false
+    });
+    this.submitted = false;
+  }
+
+  // Getters para facilitar el acceso a los campos del formulario
   get f() { return this.criptomonedaForm.controls; }
 }
