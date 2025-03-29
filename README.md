@@ -24,17 +24,6 @@ El proyecto utiliza las siguientes tecnologías y versiones:
 
 Sigue estos pasos para clonar y levantar el proyecto:
 
-### **1.Clonar repositorio**
-Clona el repositorio desde GitHub:
-
----
-
-## **Requisitos Previos**
-
-## **Estructura del Proyecto**
-
-El proyecto está dividido en dos aplicaciones principales:
-
 ### **1.Clonar el repositorio**
 La aplicación principal (host) que carga y orquesta los módulos remotos.
 ```bash
